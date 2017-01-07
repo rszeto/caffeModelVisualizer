@@ -1,0 +1,15 @@
+%% DO NOT CHANGE THIS SECTION
+% Declare the below variables as global
+global g_caffePath;
+global g_modelRootPath;
+
+%% CHANGE THE PATHS BELOW FOR YOUR SYSTEM
+% Path to the MatCaffe wrapper
+g_caffePath = '/home/rszeto/caffe/matlab';
+% Path to your models. This is just for convenience, since it only sets the
+% directory that opens when you choose a file.
+g_modelRootPath = '/home/rszeto/caffe/models';
+
+%% DO NOT CHANGE THIS SECTION
+% Add Caffe to the Matlab path
+addpath(g_caffePath);
