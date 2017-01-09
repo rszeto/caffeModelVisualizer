@@ -2,13 +2,13 @@
 
 This software lets you visualize Caffe models, specifically the convolutional kernels and weights for fully-connected layers of pre-trained models.
 
-# Running the program
+## Running the program
 
-## Requirements
+### Requirements
 
 This program requires MATLAB and Caffe. It was tested on MATLAB R2015b and Caffe 1.0.0 RC3, but it _should_ work for earlier versions of both.
 
-## Starting the GUI
+### Starting the GUI
 
 1. Download the code (duh).
 2. Move or copy `startup.m.example` to `startup.m`.
@@ -23,6 +23,6 @@ This program requires MATLAB and Caffe. It was tested on MATLAB R2015b and Caffe
 
 6. Run `startup.m`.
 
-# More information
+## More information
 
 Further instructions on using the GUI itself appear when you run the program.
