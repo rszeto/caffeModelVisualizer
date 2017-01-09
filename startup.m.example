@@ -13,3 +13,5 @@ g_modelRootPath = '/home/rszeto/caffe/models';
 %% DO NOT CHANGE THIS SECTION
 % Add Caffe to the Matlab path
 addpath(g_caffePath);
+% Open visualizer
+caffeModelVisualizer;

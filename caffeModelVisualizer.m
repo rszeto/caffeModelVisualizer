@@ -191,7 +191,7 @@ function modelFileButton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 global g_modelRootPath;
-[basename, dirname, ~] = uigetfile({'*.prototxt', 'Model files (*.prototxt)'}, 'Model file', g_modelRootPath);
+[basename, dirname, ~] = uigetfile({'*.prototxt', 'Deployment model files (*.prototxt)'}, 'Model file', g_modelRootPath);
 if basename ~= 0
     % Set and display model path
     handles.modelFilePath = fullfile(dirname, basename);
