@@ -2,6 +2,8 @@
 
 This software lets you visualize Caffe models, specifically the convolutional kernels and weights for fully-connected layers of pre-trained models.
 
+![](https://raw.github.com/rszeto/caffeModelVisualizer/master/media/screenshots.png)
+
 ## Running the program
 
 ### Requirements
