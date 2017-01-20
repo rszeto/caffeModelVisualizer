@@ -22,7 +22,7 @@ function varargout = caffeModelVisualizer(varargin)
 
 % Edit the above text to modify the response to help caffeModelVisualizer
 
-% Last Modified by GUIDE v2.5 07-Jan-2017 16:17:20
+% Last Modified by GUIDE v2.5 20-Jan-2017 15:13:00
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -56,6 +56,7 @@ function caffeModelVisualizer_OpeningFcn(hObject, eventdata, handles, varargin)
 handles.filterNum = 0;
 handles.sliceNum = 0;
 handles.layerNameToWeightMap = 0;
+handles.imagescRange = [0 0.1];
 
 % Set colormap for plots
 colormap('gray');
@@ -101,7 +102,6 @@ layerWeights = handles.layerNameToWeightMap(handles.layerName);
 
 % Determine layer type from shape of weights (either conv or fc)
 if length(size(layerWeights)) == 4
-    disp('Conv layer');
     % Show conv panel and hide FC panel
     set(handles.convVisPanel, 'Visible', 'On');
     set(handles.fcVisPanel, 'Visible', 'Off');
@@ -117,7 +117,6 @@ if length(size(layerWeights)) == 4
     % Update filter visualization
     [hObject, handles] = updateConvAxes(hObject, handles);
 elseif length(size(layerWeights)) == 2
-    disp('FC layer');
     % Show FC panel and hide conv panel
     set(handles.convVisPanel, 'Visible', 'Off');
     set(handles.fcVisPanel, 'Visible', 'On');
@@ -127,6 +126,8 @@ elseif length(size(layerWeights)) == 2
 end
 % Hide instructions panel
 set(handles.instructionsPanel, 'Visible', 'Off');
+% Commit handle data
+guidata(hObject, handles);
 
 
 function [hObject, handles] = updateNumFilters(hObject, handles, numFilters)
@@ -152,7 +153,7 @@ function [hObject, handles] = updateConvAxes(hObject, handles)
 layerWeights = handles.layerNameToWeightMap(handles.layerName);
 slice = layerWeights(:, :, handles.sliceNum, handles.filterNum);
 % Show slice with color bar and hide axes
-imagesc(slice, 'Parent', handles.convAxes, [0 .2]);
+imagesc(slice, 'Parent', handles.convAxes, handles.imagescRange);
 colorbar(handles.convAxes);
 set(handles.convAxes, 'Visible', 'Off');
 
@@ -161,7 +162,7 @@ function [hObject, handles] = updateFcAxes(hObject, handles)
 % Get weights to show
 layerWeights = handles.layerNameToWeightMap(handles.layerName);
 % Show weights and colorbar
-imagesc(layerWeights, 'Parent', handles.fcAxes, [0 .2]);
+imagesc(layerWeights, 'Parent', handles.fcAxes, handles.imagescRange);
 colorbar(handles.fcAxes);
 % For both axes, hide tick labels and add descriptive label
 set(handles.fcAxes, 'XTick', []);
@@ -408,3 +409,35 @@ end
 function mainWindow_DeleteFcn(hObject, eventdata, handles)
 % Reset Caffe when exiting. This stops Matlab from crashing on close.
 caffe.reset_all();
+
+
+% --- Executes on button press in fcViewFullResButton.
+function fcViewFullResButton_Callback(hObject, eventdata, handles)
+% hObject    handle to fcViewFullResButton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+% Get weights to show
+layerWeights = handles.layerNameToWeightMap(handles.layerName);
+hFig = figure('Name', handles.layerName, 'NumberTitle', 'Off');
+hIm = imagesc(layerWeights, handles.imagescRange);
+hSP = imscrollpanel(hFig, hIm);
+colormap('gray');
+
+
+% --- Executes on button press in fcSaveFullResButton.
+function fcSaveFullResButton_Callback(hObject, eventdata, handles)
+% hObject    handle to fcSaveFullResButton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+% Get weights to show
+layerWeights = handles.layerNameToWeightMap(handles.layerName);
+% Rescale weights so they are saved to the image correctly
+layerWeightsImage = (layerWeights - handles.imagescRange(1)) ./ (handles.imagescRange(2) - handles.imagescRange(1));
+% Draw image in invisible figure to avoid affecting FC visualization
+hFig = figure('Visible', 'Off');
+hIm = imagesc(layerWeightsImage);
+colormap('gray');
+% Save image
+imsave(hFig);
+% Close invisible figure
+close(hFig);
