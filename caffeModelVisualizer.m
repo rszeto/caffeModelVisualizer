@@ -43,6 +43,14 @@ else
 end
 % End initialization code - DO NOT EDIT
 
+% --- Generate a custom gradient colormap (cyan -> black -> red)
+function colorMap = createColorMap()
+
+smoothness = 30;
+redRange = [zeros(1, smoothness) linspace(0, 1, smoothness)];
+greenRange = [linspace(1, 0, smoothness), zeros(1, smoothness)];
+blueRange = [linspace(1, 0, smoothness), zeros(1, smoothness)];
+colorMap = [redRange; greenRange; blueRange]';
 
 % --- Executes just before caffeModelVisualizer is made visible.
 function caffeModelVisualizer_OpeningFcn(hObject, eventdata, handles, varargin)
@@ -56,10 +64,11 @@ function caffeModelVisualizer_OpeningFcn(hObject, eventdata, handles, varargin)
 handles.filterNum = 0;
 handles.sliceNum = 0;
 handles.layerNameToWeightMap = 0;
-handles.imagescRange = [0 0.1];
+handles.imagescRange = [-0.1 0.1];
 
-% Set colormap for plots
-colormap('gray');
+% Set custom colormap for plots
+handles.colormap = createColorMap;
+colormap(handles.colormap);
 
 % Set Caffe mode (no GPU needed for this program)
 caffe.set_mode_cpu();
@@ -421,7 +430,7 @@ layerWeights = handles.layerNameToWeightMap(handles.layerName);
 hFig = figure('Name', handles.layerName, 'NumberTitle', 'Off');
 hIm = imagesc(layerWeights, handles.imagescRange);
 hSP = imscrollpanel(hFig, hIm);
-colormap('gray');
+colormap(handles.colormap);
 
 
 % --- Executes on button press in fcSaveFullResButton.
@@ -436,7 +445,7 @@ layerWeightsImage = (layerWeights - handles.imagescRange(1)) ./ (handles.imagesc
 % Draw image in invisible figure to avoid affecting FC visualization
 hFig = figure('Visible', 'Off');
 hIm = imagesc(layerWeightsImage);
-colormap('gray');
+colormap(handles.colormap);
 % Save image
 imsave(hFig);
 % Close invisible figure
