@@ -438,15 +438,18 @@ function fcSaveFullResButton_Callback(hObject, eventdata, handles)
 % hObject    handle to fcSaveFullResButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-% Get weights to show
-layerWeights = handles.layerNameToWeightMap(handles.layerName);
-% Rescale weights so they are saved to the image correctly
-layerWeightsImage = (layerWeights - handles.imagescRange(1)) ./ (handles.imagescRange(2) - handles.imagescRange(1));
-% Draw image in invisible figure to avoid affecting FC visualization
-hFig = figure('Visible', 'Off');
-hIm = imagesc(layerWeightsImage);
-colormap(handles.colormap);
-% Save image
-imsave(hFig);
-% Close invisible figure
-close(hFig);
+
+% Choose the save location
+[basename, dirname] = uiputfile('weights.png', 'Save Image');
+% Write the image to the location
+if basename ~= 0
+    % Get weights to show
+    layerWeightsImage = handles.layerNameToWeightMap(handles.layerName);
+    % Rescale weights, and clip weights outside the boundary
+    layerWeightsImage = (layerWeightsImage - handles.imagescRange(1)) ./ (handles.imagescRange(2) - handles.imagescRange(1));
+    layerWeightsImage = min(max(layerWeightsImage, 0), 1);
+    % Get indexes into the target colormap
+    X = gray2ind(layerWeightsImage, size(handles.colormap, 1));
+    % Save the image with the target colormap
+    imwrite(X, handles.colormap, fullfile(dirname, basename));
+end
