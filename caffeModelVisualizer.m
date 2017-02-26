@@ -22,7 +22,7 @@ function varargout = caffeModelVisualizer(varargin)
 
 % Edit the above text to modify the response to help caffeModelVisualizer
 
-% Last Modified by GUIDE v2.5 20-Jan-2017 15:13:00
+% Last Modified by GUIDE v2.5 25-Feb-2017 18:33:26
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -61,10 +61,12 @@ function caffeModelVisualizer_OpeningFcn(hObject, eventdata, handles, varargin)
 % varargin   command line arguments to caffeModelVisualizer (see VARARGIN)
 
 % Set data values
+global g_modelRootPath;
 handles.filterNum = 0;
 handles.sliceNum = 0;
 handles.layerNameToWeightMap = 0;
 handles.imagescRange = [-0.1 0.1];
+handles.lastFileDirectory = g_modelRootPath;
 
 % Set custom colormap for plots
 handles.colormap = createColorMap;
@@ -200,12 +202,17 @@ function modelFileButton_Callback(hObject, eventdata, handles)
 % hObject    handle to modelFileButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-global g_modelRootPath;
-[basename, dirname, ~] = uigetfile({'*.prototxt', 'Deployment model files (*.prototxt)'}, 'Model file', g_modelRootPath);
+[basename, dirname, ~] = uigetfile({'*.prototxt', 'Deployment model files (*.prototxt)'}, 'Model file', handles.lastFileDirectory);
 if basename ~= 0
+    % Update last file directory
+    handles.lastFileDirectory = dirname;
     % Set and display model path
     handles.modelFilePath = fullfile(dirname, basename);
-    set(handles.modelFileLabel, 'String', handles.modelFilePath);
+    if(length(handles.modelFilePath) > 100)
+        set(handles.modelFileLabel, 'String', handles.modelFilePath(length(handles.modelFilePath) - 99:end));
+    else
+        set(handles.modelFileLabel, 'String', handles.modelFilePath);
+    end
     % Enable weight path button
     set(handles.weightsFileButton, 'Enable', 'on');
 else
@@ -231,12 +238,17 @@ function weightsFileButton_Callback(hObject, eventdata, handles)
 % hObject    handle to weightsFileButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-global g_modelRootPath;
-[basename, dirname, ~] = uigetfile({'*.caffemodel', 'Weight files (*.caffemodel)'}, 'Weight file', g_modelRootPath);
+[basename, dirname, ~] = uigetfile({'*.caffemodel', 'Weight files (*.caffemodel)'}, 'Weight file', handles.lastFileDirectory);
 if basename ~= 0
+    % Update last file directory
+    handles.lastFileDirectory = dirname;
     % Set and display weight path
     handles.modelWeightsPath = fullfile(dirname, basename);
-    set(handles.modelWeightsLabel, 'String', handles.modelWeightsPath);
+    if(length(handles.modelWeightsPath) > 100)
+        set(handles.modelWeightsLabel, 'String', handles.modelWeightsPath(length(handles.modelWeightsPath) - 99:end));
+    else
+        set(handles.modelWeightsLabel, 'String', handles.modelWeightsPath);
+    end
     % Show loading panel and render immediately
     set(handles.loadingPanel, 'Visible', 'On');
     drawnow;
@@ -452,4 +464,6 @@ if basename ~= 0
     X = gray2ind(layerWeightsImage, size(handles.colormap, 1));
     % Save the image with the target colormap
     imwrite(X, handles.colormap, fullfile(dirname, basename));
+    % Commit data value
+    guidata(hObject, handles);
 end
